@@ -6,10 +6,15 @@ RUN echo deb http://ftp.debian.org/debian experimental main >> /etc/apt/sources.
  && apt-get update                                                                   \
  && apt-get -y --no-install-recommends install mysql-server-5.6                      \
  && rm -fr /var/lib/apt/lists/*                                                      \
- && sed -ie s/127.0.0.1/0.0.0.0/ /etc/mysql/my.cnf                                   \
- && /etc/init.d/mysql restart                                                        \
+ && service mysql start                                                              \
  && mysql -e 'GRANT ALL PRIVILEGES ON *.* TO root@"%" WITH GRANT OPTION'
 
 EXPOSE 3306
 
-CMD ["/usr/bin/mysqld_safe"]
+ENTRYPOINT [                                \
+    "mysqld",                               \
+    "--no-defaults",                        \
+    "--bind-address",            "0.0.0.0", \
+    "--innodb-buffer-pool-size", "5M",      \
+    "--user",                    "mysql"    \
+]
